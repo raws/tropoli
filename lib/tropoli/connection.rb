@@ -20,9 +20,9 @@ module Tropoli
     end
     
     def send_message(message, *args)
-      message = [message.to_s.upcase, *args].join(" ")
-      send_data message
-      log :debug, "Sent", message
+      message = Message.new(message, *args) unless message.is_a?(Message)
+      send_data message.to_s
+      log :debug, "Sent", message.to_s.inspect
     end
     
     def log(level, *args)
