@@ -12,7 +12,8 @@ module Tropoli
     end
     
     def receive_line(line)
-      log :debug, "Received", line.inspect
+      message = Message.new(line)
+      log :debug, "Received", message.inspect
     end
     
     def unbind
