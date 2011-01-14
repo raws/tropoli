@@ -1,3 +1,5 @@
+require "test_helper"
+
 module Tropoli
   class ExtractTest < TestCase
     test :"just a pattern" do

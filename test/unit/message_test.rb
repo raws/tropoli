@@ -1,3 +1,5 @@
+require "test_helper"
+
 module Tropoli
   class RequestTest < TestCase
     test :"empty arguments" do

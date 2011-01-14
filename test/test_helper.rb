@@ -17,4 +17,6 @@ Tropoli.logger = Logger.new(File.open(File.join(TEST_LOG_DIR, "test.log"), "w+")
 
 require "tropoli/test_case"
 require "tropoli/test_connection"
+require "tropoli/functional_test_connection"
 require "tropoli/integration_test"
+require "tropoli/functional_test"

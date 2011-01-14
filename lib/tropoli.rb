@@ -1,6 +1,7 @@
 $:.unshift File.dirname(__FILE__)
 
 require "eventmachine"
+require "socket"
 
 require "tropoli/core_ext/blank"
 require "tropoli/core_ext/string"

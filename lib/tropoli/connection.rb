@@ -3,17 +3,18 @@ module Tropoli
     attr_reader :options
     
     def initialize(options)
+      super
       @options = options
     end
     
     def post_init
-      log :info, "Opened connection to #{address}:#{port}"
+      log :info, "Opened connection to #{options[:host]}:#{options[:port]}"
       identify!
     end
     
     def receive_line(line)
       message = Message.new(line)
-      log :debug, "Received", message.inspect
+      log :debug, "Received", message.to_s.inspect
     end
     
     def unbind
