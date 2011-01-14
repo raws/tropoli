@@ -2,7 +2,7 @@ require "test_helper"
 
 module Tropoli
   class ConnectionTest < FunctionalTest
-    test :"connecting to a server and joining a channel" do
+    test :"connecting to a server and sending some commands" do
       connection do |c|
         pass_method = options[:pass] ? :assert_sent_from : :assert_not_sent_from
         send pass_method, c, "PASS"
