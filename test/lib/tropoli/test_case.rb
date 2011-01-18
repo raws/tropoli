@@ -2,7 +2,7 @@ module Tropoli
   class TestCase < Test::Unit::TestCase
     CONNECTION_DEFAULTS = { :nick => "Raws", :user => "ross", :real => "Ross" }
     
-    undef :default_test
+    undef :default_test if respond_to?(:default_test)
     
     def self.test(name, &block)
       define_method "test #{name.inspect}", &block
