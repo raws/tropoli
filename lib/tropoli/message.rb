@@ -29,7 +29,7 @@ module Tropoli
     
     protected
       def parse_request(*args)
-        @command = args.shift.to_s.upcase
+        @command = args.shift.to_s.strip.upcase
         @params = args
       end
 
