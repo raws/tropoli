@@ -17,6 +17,11 @@ module Tropoli
       received_data << line
     end
     
+    def receive_message(message, *args)
+      message = Message.new(message, *args) unless message.is_a?(Message)
+      receive_line message.to_s
+    end
+    
     def address
       "test"
     end

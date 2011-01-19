@@ -1,5 +1,8 @@
 module Tropoli
   class Connection < EventMachine::Protocols::LineAndTextProtocol
+    extend Concerns::Callbacks
+    include Concerns::Callbacks
+    
     attr_reader :options
     
     def initialize(options)
@@ -14,6 +17,7 @@ module Tropoli
     
     def receive_line(line)
       message = Message.new(line)
+      distribute message
       log :debug, "Received", message.to_s.inspect
     end
     
@@ -24,6 +28,7 @@ module Tropoli
     def send_message(message, *args)
       message = Message.new(message, *args) unless message.is_a?(Message)
       send_data message.to_s
+      distribute message
       log :debug, "Sent", message.to_s.inspect
     end
     
@@ -48,6 +53,14 @@ module Tropoli
         send_message :pass, options[:pass] if options[:pass]
         send_message :nick, options[:nick]
         send_message :user, options[:user], 0, 0, options[:real]
+      end
+      
+      def distribute(message)
+        [self.callbacks, self.class.callbacks].each do |callbacks|
+          (callbacks[message.command] || {}).each do |id, callback|
+            callback.call(message, self, id)
+          end
+        end unless message.command.blank?
       end
   end
 end

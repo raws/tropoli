@@ -1,6 +1,7 @@
 begin
   require "tropoli"
   require "test/unit"
+  require "mocha"
 rescue LoadError => e
   if require "rubygems"
     retry

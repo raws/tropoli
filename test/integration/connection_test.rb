@@ -22,5 +22,41 @@ module Tropoli
         assert_not_sent_from c, "PASS"
       end
     end
+    
+    test :"adding a class callback" do
+      connection.tap do |c|
+        callback = proc {}
+        c.class.on :privmsg, &callback
+        callback.expects :call
+        assert_sent_to c, "PRIVMSG Raws :message with spaces\r\n" do
+          c.receive_message :privmsg, "Raws", "message with spaces"
+        end
+      end
+    end
+    
+    test :"adding an instance callback" do
+      connection.tap do |c|
+        callback = proc {}
+        c.on :privmsg, &callback
+        callback.expects :call
+        assert_sent_to c, "PRIVMSG Raws :message with spaces\r\n" do
+          c.receive_message :privmsg, "Raws", "message with spaces"
+        end
+      end
+    end
+    
+    test :"callbacks should be called once per event" do
+      connection.tap do |c|
+        callback = proc {}
+        c.on :privmsg, &callback
+        callback.expects(:call).twice
+        assert_sent_to c, "PRIVMSG Raws :here's one message\r\n" do
+          c.receive_message :privmsg, "Raws", "here's one message"
+        end
+        assert_sent_to c, "PRIVMSG Raws :and here's another\r\n" do
+          c.receive_message :privmsg, "Raws", "and here's another"
+        end
+      end
+    end
   end
 end
