@@ -8,7 +8,7 @@ module Tropoli
         send pass_method, c, "PASS"
         
         assert_sent_from c, "NICK #{nick}\r\n"
-        assert_sent_from c, "USER #{user} 0 0 #{":" if real =~ /\s/}#{real}\r\n"
+        assert_sent_from c, "USER #{user} 0 * #{":" if real =~ /\s/}#{real}\r\n"
         
         channel = "#perkele"
         assert_sent_from c, "JOIN #{channel}\r\n" do

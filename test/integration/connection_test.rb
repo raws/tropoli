@@ -6,7 +6,7 @@ module Tropoli
       options = { :nick => "Tropoli", :user => "tropoli", :real => "Tropoli Bot" }
       connection(options).tap do |c|
         assert_sent_from c, "NICK #{options[:nick]}\r\n"
-        assert_sent_from c, "USER #{options[:user]} 0 0 :#{options[:real]}\r\n"
+        assert_sent_from c, "USER #{options[:user]} 0 * :#{options[:real]}\r\n"
       end
     end
     
