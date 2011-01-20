@@ -57,7 +57,7 @@ module Tropoli
       def identify!
         send_message :pass, options[:pass] if options[:pass]
         send_message :nick, options[:nick]
-        send_message :user, options[:user], 0, 0, options[:real]
+        send_message :user, options[:user], 0, "*", options[:real]
       end
       
       def distribute(message)
