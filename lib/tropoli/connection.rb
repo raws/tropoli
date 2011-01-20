@@ -4,6 +4,7 @@ module Tropoli
     include Concerns::Callbacks
     
     attr_reader :options
+    attr_writer :logger
     
     def initialize(options)
       super
@@ -32,8 +33,12 @@ module Tropoli
       log :debug, "Sent", message.to_s.inspect
     end
     
+    def logger
+      @logger || Tropoli.logger
+    end
+    
     def log(level, *args)
-      Tropoli.logger.send(level, args.join(" "))
+      logger.send(level, args.join(" "))
     end
     
     def address
