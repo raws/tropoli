@@ -82,5 +82,22 @@ module Tropoli
         end
       end
     end
+    
+    test :"sending a CTCP request" do
+      connection.tap do |c|
+        assert_sent_from c, "PRIVMSG Raws \x01TIME\x01\r\n" do
+          c.send_ctcp_message :time, :target => "Raws"
+        end
+        assert_sent_from c, "NOTICE Raws :\x01TIME Sun,\\@31\\@Jul\\@2011\\@00:00:00\\@-0000" do
+          c.send_ctcp_message :time, "Sun, 31 Jul 2011 00:00:00 -0000", :target => "Raws", :type => :notice
+        end
+        assert_sent_from c, "PRIVMSG Raws \x01VERSION\x01\r\n" do
+          c.send_ctcp_message :version, :target => "Raws"
+        end
+        assert_sent_from c, "PRIVMSG Raws :\x01DCC CHAT clear 127.0.0.1 1234\x01\r\n" do
+          c.send_ctcp_message :dcc, "CHAT", "clear", "127.0.0.1", "1234", :target => "Raws"
+        end
+      end
+    end
   end
 end
