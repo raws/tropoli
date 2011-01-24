@@ -18,6 +18,8 @@ module Tropoli
     
     def receive_line(line)
       message = Message.new(line)
+      message = CtcpMessage.new(message) if message.ctcp?
+      # TODO send_ctcp_message?
       distribute message
       log :debug, "Received", message.to_s.inspect
     end
@@ -27,7 +29,7 @@ module Tropoli
     end
     
     def send_message(message, *args)
-      message = Message.new(message, *args) unless message.is_a?(Message)
+      message = Message.new(message, *args) unless message.kind_of?(Message)
       send_data message.to_s
       distribute message
       log :debug, "Sent", message.to_s.inspect

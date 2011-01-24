@@ -1,7 +1,7 @@
 require "test_helper"
 
 module Tropoli
-  class RequestTest < TestCase
+  class MessageRequestTest < TestCase
     test :"empty arguments" do
       assert_raise(ArgumentError) { Message.new }
     end
@@ -39,7 +39,7 @@ module Tropoli
     end
   end
   
-  class ResponseTest < TestCase
+  class MessageResponseTest < TestCase
     test :"empty line" do
       assert_response :command => "", :params => [], :from => ""
       assert_response :command => "", :params => [], :from => " "
@@ -74,6 +74,36 @@ module Tropoli
       options.each do |method, value|
         assert_equal value, message.send(method), "when calling method #{method.inspect}"
       end
+    end
+  end
+  
+  class MessageCtcpTest < TestCase
+    test :"detecting a CTCP request" do
+      assert_ctcp :command => "PRIVMSG", :params => ["nickname", "\x01VERSION\x01"]
+      assert_ctcp :command => "PRIVMSG", :params => ["nickname", " \x01VERSION\x01"]
+      assert_ctcp :command => "PRIVMSG", :params => ["nickname", "\x01VERSION\x01 "]
+      assert_ctcp :command => "NOTICE", :params => ["nickname", "\x01VERSION\x01"]
+      assert_ctcp :command => "PRIVMSG", :params => ["#channel", "\x01ACTION wonders\x01"]
+    end
+    
+    test :"regular messages should not be considered CTCP requests" do
+      assert_not_ctcp :command => "PRIVMSG", :params => ["nickname", "message"]
+      assert_not_ctcp :command => "PRIVMSG", :params => ["nickname", "message with spaces"]
+      assert_not_ctcp :command => "NOTICE", :params => ["nickname", "message"]
+      assert_not_ctcp :command => "PRIVMSG", :params => ["nickname", "\x01VERSION"]
+      assert_not_ctcp :command => "PRIVMSG", :params => ["nickname", "VERSION\x01"]
+      assert_not_ctcp :command => "JOIN", :params => ["#channel"]
+      assert_not_ctcp :command => "JOIN", :params => ["\x01#channel\x01"]
+    end
+    
+    def assert_ctcp(options)
+      message = Message.new(options[:command], *options[:params])
+      assert message.ctcp?, "should be a CTCP request"
+    end
+    
+    def assert_not_ctcp(options)
+      message = Message.new(options[:command], *options[:params])
+      assert !message.ctcp?, "should not be a CTCP request"
     end
   end
 end

@@ -1,6 +1,6 @@
 module Tropoli
   class Message
-    attr_reader :command, :params
+    attr_accessor :command, :params
     
     def initialize(*args)
       if args.size > 1
@@ -15,16 +15,21 @@ module Tropoli
     def to_s
       return nil unless command.present?
       message = [command]
-      params.compact!
       unless params.empty?
-        middle_params = params.flatten.map { |p| p.to_s.gsub(/[\0\r\n]/, "") }
+        middle_params = params.flatten.compact.map { |p| p.to_s.gsub(/[\0\r\n]/, "") }
         trailing_param = middle_params.pop if params.last =~ /\A:|\s/ || params.last.empty?
         middle_params.map! { |p| p.gsub(/\A:|\s/, "") }
         middle_params.reject! { |p| p.blank? || p =~ /\A[\0\r\n\s]*\z/ }
         message.concat(middle_params)
         message << ":#{trailing_param}" if trailing_param
       end
-      message.join(SEPARATOR) << TERMINATOR
+      message.join(" ") << "\r\n"
+    end
+    
+    def ctcp?
+      %w(PRIVMSG NOTICE).include?(command) &&
+      !params.empty? &&
+      params.last.to_s =~ /\A\s*\x01[^\x01\0\r\n]*\x01\s*\z/
     end
     
     protected
@@ -42,8 +47,5 @@ module Tropoli
         params << line.extract!(/\A\s*:(.*)\z/, 1)
         params.compact!
       end
-    
-    SEPARATOR = " "
-    TERMINATOR = "\r\n"
   end
 end

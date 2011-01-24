@@ -58,5 +58,29 @@ module Tropoli
         end
       end
     end
+    
+    test :"receiving a CTCP request" do
+      connection.tap do |c|
+        callback = proc {}
+        
+        c.on :time, &callback
+        callback.expects(:call)
+        assert_sent_to c, "PRIVMSG Raws \x01TIME\x01\r\n" do
+          c.receive_message :privmsg, "Raws", "\x01TIME\x01"
+        end
+        
+        c.on :version, &callback
+        callback.expects(:call)
+        assert_sent_to c, "PRIVMSG Raws \x01VERSION\x01\r\n" do
+          c.receive_message :privmsg, "Raws", "\x01VERSION\x01"
+        end
+        
+        c.on :dcc, &callback
+        callback.expects(:call)
+        assert_sent_to c, "PRIVMSG Raws :\x01DCC CHAT clear 127.0.0.1 1234\x01\r\n" do
+          c.receive_message :privmsg, "Raws", "\x01DCC CHAT clear 127.0.0.1 1234\x01"
+        end
+      end
+    end
   end
 end
