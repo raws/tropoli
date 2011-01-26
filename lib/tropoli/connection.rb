@@ -3,6 +3,7 @@ module Tropoli
     extend Concerns::Callbacks
     include Concerns::Callbacks
     
+    include Commands::Ping
     include Commands::Time
     
     attr_reader :options

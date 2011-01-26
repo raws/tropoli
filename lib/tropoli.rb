@@ -9,6 +9,7 @@ require "tropoli/core_ext/time"
 
 require "tropoli/concerns/callbacks"
 
+require "tropoli/commands/ping"
 require "tropoli/commands/time"
 
 require "tropoli/connection"
