@@ -33,6 +33,11 @@ module Tropoli
       assert_request :command => "PRIVMSG", :params => [":nickname", "message with spaces"], :creates => "PRIVMSG nickname :message with spaces\r\n"
     end
     
+    test :"a command with a user source as a param should use the nick" do
+      target = Source.new("Raws", "raws", "test")
+      assert_request :command => "PRIVMSG", :params => [target, "message with spaces"], :creates => "PRIVMSG Raws :message with spaces\r\n"
+    end
+    
     def assert_request(options)
       message = Message.new(options[:command], *options[:params])
       assert_equal options[:creates], message.to_s, "when forming a request"
@@ -43,6 +48,8 @@ module Tropoli
     test :"empty line" do
       assert_response :command => "", :params => [], :from => ""
       assert_response :command => "", :params => [], :from => " "
+      assert_response :command => "", :params => [], :from => "\r\n"
+      assert_response :command => "", :params => [], :from => " \r\n"
     end
     
     test :"just a command" do
@@ -69,8 +76,36 @@ module Tropoli
       assert_response :command => "PRIVMSG", :params => ["nickname", "message"], :from => "PRIVMSG nickname message"
     end
     
+    test :"a command with a source" do
+      assert_response :command => "QUIT", :params => [], :source => { :nick => "Raws", :user => "ross", :host => "test" }, :from => ":Raws!ross@test QUIT"
+      assert_response :command => "PING", :params => [], :source => { :host => "gort.nj.us.doolanshire.net" }, :from => ":gort.nj.us.doolanshire.net PING"
+    end
+    
+    test :"a command with a source should be considered incoming" do
+      message = Message.new(":gort.nj.us.doolanshire.net PING")
+      assert_equal "gort.nj.us.doolanshire.net", message.source.to_s
+      assert message.incoming?
+      assert !message.outgoing?
+      message = Message.new(":Raws!ross@test PRIVMSG :a message with spaces")
+      assert_equal "Raws!ross@test", message.source.to_s
+      assert message.incoming?
+      assert !message.outgoing?
+    end
+    
+    test :"a command without a source should be considered outgoing" do
+      message = Message.new("PRIVMSG #channel :a message with spaces")
+      assert_nil message.source
+      assert !message.incoming?
+      assert message.outgoing?
+      message = Message.new("PRIVMSG", "#channel", "a message with spaces")
+      assert_nil message.source
+      assert !message.incoming?
+      assert message.outgoing?
+    end
+    
     def assert_response(options)
       message = Message.new(options.delete(:from))
+      options[:source] = Source.new(options[:source]) if options[:source]
       options.each do |method, value|
         assert_equal value, message.send(method), "when calling method #{method.inspect}"
       end

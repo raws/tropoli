@@ -3,6 +3,8 @@ module Tropoli
     extend Concerns::Callbacks
     include Concerns::Callbacks
     
+    include Commands::Time
+    
     attr_reader :options
     attr_writer :logger
     
@@ -19,8 +21,8 @@ module Tropoli
     def receive_line(line)
       message = Message.new(line)
       message = CtcpMessage.new(message) if message.ctcp?
-      distribute message
       log :debug, "Received", message.to_s.inspect
+      distribute message
     end
     
     def unbind
@@ -30,8 +32,8 @@ module Tropoli
     def send_message(message, *args)
       message = Message.new(message, *args) unless message.kind_of?(Message)
       send_data message.to_s
-      distribute message
       log :debug, "Sent", message.to_s.inspect
+      distribute message
     end
     
     def send_ctcp_message(message, *args)
@@ -67,7 +69,9 @@ module Tropoli
       end
       
       def distribute(message)
-        [self.callbacks, self.class.callbacks].each do |callbacks|
+        [self, *self.class.ancestors].map do |provider|
+          provider.respond_to?(:callbacks) ? provider.callbacks : nil
+        end.compact.each do |callbacks|
           (callbacks[message.command] || {}).each do |id, callback|
             callback.call(message, self, id)
           end

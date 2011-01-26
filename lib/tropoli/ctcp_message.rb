@@ -12,6 +12,10 @@ module Tropoli
       end
     end
     
+    def ctcp?
+      true
+    end
+    
     def to_m(options = {})
       return nil unless command.present?
       ctcp_params = params.flatten.compact.map { |p| escape(p) }.reject { |p| p.blank? }
@@ -37,6 +41,7 @@ module Tropoli
       def parse_message(message)
         @type = message.command
         @target = message.params.shift.to_s
+        @source = message.source
         line = message.params.last.to_s
         tokens = (line.extract!(/\x01([^\x01\0\r\n]*)\x01/, 1) || "").split(" ")
         @command = tokens.shift.to_s.strip.upcase
