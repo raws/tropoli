@@ -11,6 +11,7 @@ require "tropoli/concerns/callbacks"
 
 require "tropoli/commands/ping"
 require "tropoli/commands/time"
+require "tropoli/commands/version"
 
 require "tropoli/connection"
 require "tropoli/logging"

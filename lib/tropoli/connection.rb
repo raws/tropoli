@@ -5,6 +5,7 @@ module Tropoli
     
     include Commands::Ping
     include Commands::Time
+    include Commands::Version
     
     attr_reader :options
     attr_writer :logger
